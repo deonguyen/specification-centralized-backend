@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  admin:
+    build:
+      context: .
+      dockerfile: specification_centralized_admin_project/Dockerfile.dev
+    container_name: specification-centralized-admin-dev
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - specification_centralized_admin_project/.env.dev
+    networks:
+      - envoy-network
+
+  auth:
+    build:
+      context: .
+      dockerfile: specification_centralized_auth_project/Dockerfile.dev
+    container_name: specification-centralized-auth-dev
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - specification_centralized_auth_project/.env.dev
+    networks:
+      - envoy-network
+
+  # spec-api:
+  #   build:
+  #     context: .
+  #     dockerfile: specification_centralized_spec_project/Dockerfile.dev
+  #   container_name: specification-centralized-spec-dev
+  #   volumes:
+  #     - .:/usr/src/app
+  #   env_file:
+  #     - specification_centralized_spec_project/.env.dev
+  #   networks:
+  #     - envoy-network
+      
+  envoy:
+    image: envoyproxy/envoy:v1.30-latest
+    container_name: envoy-proxy-dev
+    depends_on:
+      - admin
+      - auth
+      # - spec-api
+    ports:
+      - "8082:8082" # HTTP Proxy
+      - "9901:9901" # Admin
+    volumes:
+      - ./envoy.dev.yml:/etc/envoy/envoy.yaml:ro
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster specification-centralized-backend-cluster-dev
+    networks:
+      - envoy-network
+
+networks:
+  envoy-network:
+    driver: bridge

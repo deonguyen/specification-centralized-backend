@@ -1,0 +1,92 @@
+admin:
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
+
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 8082
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_service
+                      domains: ["*"]
+                      routes:
+                        - match:
+                            prefix: "/auth/"
+                          route:
+                            cluster: auth_cluster
+                            prefix_rewrite: "/auth/"
+                        # - match:
+                        #     prefix: "/admin/"
+                        #   route:
+                        #     cluster: admin_cluster
+                        #     prefix_rewrite: "/admin/"
+                        # - match:
+                        #     prefix: "/auth/"
+                        #   route:
+                        #     cluster: auth_cluster
+                        #     prefix_rewrite: "/"
+                        # - match:
+                        #     prefix: "/spec/"
+                        #   route:
+                        #     cluster: spec_cluster
+                http_filters:
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+    - name: admin_cluster
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      # Http2 is not supported by Django's development server
+      # http2_protocol_options: {}
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: admin_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: admin
+                      port_value: 5000
+    - name: auth_cluster
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      # http2_protocol_options: {}
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: auth_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: auth
+                      port_value: 5001
+    # - name: spec_cluster
+    #   connect_timeout: 0.25s
+    #   type: STRICT_DNS
+    #   # http2_protocol_options: {}
+    #   lb_policy: ROUND_ROBIN
+    #   load_assignment:
+    #     cluster_name: spec_cluster
+    #     endpoints:
+    #       - lb_endpoints:
+    #           - endpoint:
+    #               address:
+    #                 socket_address:
+    #                   address: host.docker.internal
+    #                   port_value: 5002

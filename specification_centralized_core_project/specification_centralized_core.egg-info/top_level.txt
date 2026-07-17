@@ -1,0 +1,2 @@
+specification_centralized_core
+specification_centralized_core_project

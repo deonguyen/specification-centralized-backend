@@ -1,0 +1,35 @@
+# Development Dockerfile
+FROM python:3.13
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+WORKDIR /usr/src/app
+
+# Install and update CA Certificates for SSL/TLS
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    update-ca-certificates
+
+RUN pip install --upgrade pip 
+
+COPY specification_centralized_auth_project/sq-spec-portal-project-dev-e83326fc9db0.json .
+
+COPY specification_centralized_auth_project/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install --index-url http://host.docker.internal:8080/simple/ --trusted-host host.docker.internal specification_centralized_core --force
+
+COPY . .
+
+# Collect static files for production
+# RUN python manage.py collectstatic --noinput
+
+# Keep only the dev environment file
+RUN rm -f .env .env.local .env.staging .env.prod
+
+# Expose the port the app runs on
+EXPOSE 5001
+
+# Run Django’s development server
+CMD ["python", "specification_centralized_admin_project/manage.py", "runserver", "0.0.0.0:5001"]

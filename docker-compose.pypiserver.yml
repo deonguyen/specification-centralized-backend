@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  pypi-server:
+    image: pypiserver/pypiserver:latest
+    container_name: pypi_server
+    ports:
+      - "8080:8080"
+    volumes:
+      # Map Windows directories to container paths
+      - C:\pypi\packages:/data/packages
+      - C:\pypi\auth:/data/auth
+    command: -P /data/auth/.htpasswd -a update,download,list /data/packages
+    restart: always

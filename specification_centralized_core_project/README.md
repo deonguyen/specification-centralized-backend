@@ -1,0 +1,48 @@
+# Specification Centralized Core
+
+`specification-centralized-core` is a reusable Django app designed to provide a centralized core for managing specifications within a Django project.
+
+## Quick Start
+
+1.  Add `"specification_centralized_core"` to your `INSTALLED_APPS` setting like this:
+
+    ```python
+    INSTALLED_APPS = [
+        ...,
+        "specification_centralized_core",
+    ]
+    ```
+
+2.  To run the initial data migration, add the following to your settings file:
+
+    ```python
+    RUN_CORE_INITIAL_DATA_MIGRATION = True
+    ```
+
+3.  Run `python manage.py migrate` to create the `specification_centralized_core` models.
+
+4.  Start the development server and visit http://127.0.0.1:8000/admin/ to see the models.
+
+## Set up a local Python package index  
+
+1. Set Up Directories and AuthenticationOpen PowerShell and create a dedicated folder structure on your Windows machine to persistently store your packages and credentials.powershell# Create root directory and subfolders
+```
+mkdir C:\pypi\packages
+mkdir C:\pypi\auth
+cd C:\pypi
+```
+
+To secure package uploads, generate a standard .htpasswd file. If you have Python installed locally, you can create it via pip:
+```
+# Install passlib to generate credentials
+python -m pip install passlib
+
+# Create the htpasswd file (replace 'admin' and 'yourpassword' with your choices)
+python -c "from passlib.apache import HtpasswdFile; ht = HtpasswdFile('auth/.htpasswd', new=True); ht.set_password('admin', 'yourpassword'); ht.save()"
+
+```
+
+2. Run the PyPI server
+```
+docker run -d --name pypi-server -p 8080:8080 -v ~/packages:/data/packages pypiserver/pypiserver:latest run -a . -P . /data/packages
+```
