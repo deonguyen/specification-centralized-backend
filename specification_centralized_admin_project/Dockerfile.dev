@@ -13,20 +13,20 @@ RUN apt-get update && \
 
 RUN pip install --upgrade pip 
 
-COPY specification_centralized_admin_project/sq-spec-portal-project-dev-29041090a096.json .
+COPY specification_centralized_admin_project/ .
+
 # COPY sq-spec-portal-project-dev-29041090a096.json .
 
-COPY specification_centralized_admin_project/requirements.txt .
 # COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --index-url http://host.docker.internal:8080/simple/ --trusted-host host.docker.internal specification_centralized_core --force
 
-COPY . .
+#COPY specification_centralized_admin_project/ .
 
 # Collect static files for production
-# RUN python specification_centralized_admin_project/manage.py collectstatic --noinput
-RUN python specification_centralized_admin_project/manage.py collectstatic
+RUN python manage.py collectstatic --noinput
 
 # Keep only the dev environment file
 RUN rm -f .env .env.local .env.staging .env.prod
