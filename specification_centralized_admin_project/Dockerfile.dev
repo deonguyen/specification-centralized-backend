@@ -13,10 +13,10 @@ RUN apt-get update && \
 
 RUN pip install --upgrade pip 
 
-COPY specification_centralized_auth_project/sq-spec-portal-project-dev-29041090a096.json .
+COPY specification_centralized_admin_project/sq-spec-portal-project-dev-29041090a096.json .
 # COPY sq-spec-portal-project-dev-29041090a096.json .
 
-COPY specification_centralized_auth_project/requirements.txt .
+COPY specification_centralized_admin_project/requirements.txt .
 # COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -25,7 +25,8 @@ RUN pip install --index-url http://host.docker.internal:8080/simple/ --trusted-h
 COPY . .
 
 # Collect static files for production
-# RUN python manage.py collectstatic --noinput
+# RUN python specification_centralized_admin_project/manage.py collectstatic --noinput
+RUN python specification_centralized_admin_project/manage.py collectstatic
 
 # Keep only the dev environment file
 RUN rm -f .env .env.local .env.staging .env.prod
@@ -34,5 +35,5 @@ RUN rm -f .env .env.local .env.staging .env.prod
 EXPOSE 5001
 
 # Run Django’s development server
-CMD ["python", "specification_centralized_auth_project/manage.py", "runserver", "0.0.0.0:5002"]
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:5002"]
+CMD ["python", "specification_centralized_admin_project/manage.py", "runserver", "0.0.0.0:5001"]
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:5001"]

@@ -1,14 +1,12 @@
 RUN PyPI server
-
 docker run -d --name pypi-server -p 8080:8080 -v ~/packages:/data/packages pypiserver/pypiserver:latest run -a . -P . /data/packages
 
-
 docker buildx build --secret id=dev,src=.env.dev -f Dockerfile.dev -t specification-centralized-admin-dev-image .
-
 docker run -d -p 5000:5000 --name specification-centralized-admin-dev-container --env-file .env.dev -v ${PWD}:/usr/src/app specification-centralized-admin-dev-image
+docker tag specification-centralized-admin-dev-image:latest localhost:5000/specification-centralized-admin-dev-image:latest
+docker push localhost:5000/specification-centralized-admin-dev-image      
 
 docker buildx build --secret id=dev,src=.env.dev -f Dockerfile.dev -t specification-centralized-auth-dev-image .
-
 docker run -d -p 5001:5001 --name specification-centralized-auth-dev-container --env-file .env.dev -v ${PWD}:/usr/src/app specification-centralized-auth-dev-image
-
-
+docker tag specification-centralized-auth-dev-image:latest localhost:5000/specification-centralized-auth-dev-image:latest
+docker push localhost:5000/specification-centralized-auth-dev-image                                                                                         

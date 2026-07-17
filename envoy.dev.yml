@@ -28,16 +28,11 @@ static_resources:
                           route:
                             cluster: auth_cluster
                             prefix_rewrite: "/auth/"
-                        # - match:
-                        #     prefix: "/admin/"
-                        #   route:
-                        #     cluster: admin_cluster
-                        #     prefix_rewrite: "/admin/"
-                        # - match:
-                        #     prefix: "/auth/"
-                        #   route:
-                        #     cluster: auth_cluster
-                        #     prefix_rewrite: "/"
+                        - match:
+                            prefix: "/admin/"
+                          route:
+                            cluster: admin_cluster
+                            prefix_rewrite: "/admin/"
                         # - match:
                         #     prefix: "/spec/"
                         #   route:
@@ -61,7 +56,7 @@ static_resources:
                   address:
                     socket_address:
                       address: admin
-                      port_value: 5000
+                      port_value: 5001
     - name: auth_cluster
       connect_timeout: 0.25s
       type: STRICT_DNS
@@ -75,7 +70,7 @@ static_resources:
                   address:
                     socket_address:
                       address: auth
-                      port_value: 5001
+                      port_value: 5002
     # - name: spec_cluster
     #   connect_timeout: 0.25s
     #   type: STRICT_DNS
