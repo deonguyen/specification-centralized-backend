@@ -13,7 +13,7 @@ RUN apt-get update && \
 
 RUN pip install --upgrade pip 
 
-COPY specification_centralized_admin_project/requirements.txt .
+COPY specification_centralized_spec_project/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -25,7 +25,7 @@ COPY . .
 RUN rm -f .env .env.local .env.staging .env.prod
 
 # Expose the port the app runs on
-EXPOSE 5001
+EXPOSE 5002
 
 # Run Django’s development server
-CMD ["python", "specification_centralized_admin_project/manage.py", "runserver", "0.0.0.0:5001"]
+CMD ["python", "specification_centralized_spec_project/manage.py", "runserver", "0.0.0.0:5003"]

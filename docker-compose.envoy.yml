@@ -38,17 +38,17 @@ services:
     networks:
       - envoy-network
 
-  # spec-api:
-  #   build:
-  #     context: .
-  #     dockerfile: specification_centralized_spec_project/Dockerfile.dev
-  #   container_name: specification-centralized-spec-dev
-  #   volumes:
-  #     - .:/usr/src/app
-  #   env_file:
-  #     - specification_centralized_spec_project/.env.dev
-  #   networks:
-  #     - envoy-network
+  spec-api:
+    build:
+      context: .
+      dockerfile: specification_centralized_spec_project/Dockerfile.dev
+    container_name: specification-centralized-spec-dev
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - specification_centralized_spec_project/.env.dev
+    networks:
+      - envoy-network
       
   envoy:
     image: envoyproxy/envoy:v1.30-latest
@@ -57,7 +57,7 @@ services:
       - admin
       - auth
       - static-server
-      #- spec-api
+      - spec-api
     ports:
       - "8082:8082" # HTTP Proxy
       - "9901:9901" # Admin

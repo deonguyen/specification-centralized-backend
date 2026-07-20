@@ -38,10 +38,10 @@ static_resources:
                           route:
                             cluster: admin_cluster
                             prefix_rewrite: "/admin/"
-                        # - match:
-                        #     prefix: "/spec/"
-                        #   route:
-                        #     cluster: spec_cluster
+                        - match:
+                            prefix: "/spec/"
+                          route:
+                            cluster: spec_cluster
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
@@ -88,18 +88,18 @@ static_resources:
                   address:
                     socket_address:
                       address: static-server
-                      port_value: 80
-    # - name: spec_cluster
-    #   connect_timeout: 0.25s
-    #   type: STRICT_DNS
-    #   # http2_protocol_options: {}
-    #   lb_policy: ROUND_ROBIN
-    #   load_assignment:
-    #     cluster_name: spec_cluster
-    #     endpoints:
-    #       - lb_endpoints:
-    #           - endpoint:
-    #               address:
-    #                 socket_address:
-    #                   address: host.docker.internal
-    #                   port_value: 5002
+                      port_value: 5080
+    - name: spec_cluster
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      # http2_protocol_options: {}
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: spec_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: host.docker.internal
+                      port_value: 5003

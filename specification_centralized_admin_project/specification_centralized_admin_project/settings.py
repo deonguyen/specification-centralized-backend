@@ -79,10 +79,10 @@ if gcp_db_creds_secret_name:
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5xz)2*raf_#8c80ufvj+fq%x30n9_8w+_e3glt4=w=vwp8z929'
+SECRET_KEY = os.environ.get("ENCRYPTION_KEY") or os.environ.get("DJANGO_SECRET_KEY", "django-insecure-default-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() in ("true", "1", "t")
 
 ALLOWED_HOSTS = ["host.docker.internal", "localhost", "127.0.0.1"]
 
