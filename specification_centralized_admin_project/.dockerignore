@@ -8,5 +8,5 @@ venv/
 *.pyc
 __pycache__/
 .pytest_cache/
-specification_centralized_admin_project/
+specification_centralized_auth_project/
 specification_centralized_spec_project/

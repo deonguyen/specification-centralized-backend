@@ -24,6 +24,11 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
+                            prefix: "/static/"
+                          route:
+                            cluster: static_cluster
+                            prefix_rewrite: "/static/"
+                        - match:
                             prefix: "/auth/"
                           route:
                             cluster: auth_cluster
@@ -71,6 +76,19 @@ static_resources:
                     socket_address:
                       address: auth
                       port_value: 5002
+    - name: static_cluster
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: static_cluster
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: static-server
+                      port_value: 80
     # - name: spec_cluster
     #   connect_timeout: 0.25s
     #   type: STRICT_DNS

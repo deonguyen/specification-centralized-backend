@@ -18,11 +18,12 @@ COPY specification_centralized_auth_project/sq-spec-portal-project-dev-29041090a
 
 COPY specification_centralized_auth_project/requirements.txt .
 # COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --index-url http://host.docker.internal:8080/simple/ --trusted-host host.docker.internal specification_centralized_core --force
 
-COPY specification_centralized_auth_project/ .
+COPY . .
 
 # Keep only the dev environment file
 RUN rm -f .env .env.local .env.staging .env.prod

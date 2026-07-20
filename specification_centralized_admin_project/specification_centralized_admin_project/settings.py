@@ -84,8 +84,23 @@ SECRET_KEY = 'django-insecure-5xz)2*raf_#8c80ufvj+fq%x30n9_8w+_e3glt4=w=vwp8z929
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["host.docker.internal", "localhost", "127.0.0.1"]
 
+# If your Django app is behind a proxy, you must configure it to trust the proxy.
+# https://docs.djangoproject.com/en/4.2/ref/settings/#secure-proxy-ssl-header
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+# CSRF Trusted Origins
+# https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
+CSRF_TRUSTED_ORIGINS_STRING = os.environ.get("CSRF_TRUSTED_ORIGINS")
+CSRF_TRUSTED_ORIGINS = (
+    [origin.strip() for origin in CSRF_TRUSTED_ORIGINS_STRING.split(",")]
+    if CSRF_TRUSTED_ORIGINS_STRING
+    else []
+)
 
 # Application definition
 
@@ -102,6 +117,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -180,7 +196,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = "/usr/src/app/staticfiles"
 
 
 # Configuration for the 'core' reusable app
