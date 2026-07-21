@@ -55,11 +55,6 @@ static_resources:
                           from_headers:
                             - name: Authorization
                               value_prefix: "Bearer "
-                          # Extracts claims from the JWT payload and adds them to request headers.
-                          payload_to_header:
-                            # Extracts the 'user_id' claim and puts it in the 'x-user-id' header.
-                            - header_name: x-user-id
-                              payload_name: user_id
                           # The issuer of the JWT. This must match the 'iss' claim in the token.
                           issuer: "specification-centralized-auth"
                           # The location of the public keys (JWKS) to verify the token signature.
