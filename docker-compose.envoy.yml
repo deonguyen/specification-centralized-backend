@@ -63,7 +63,8 @@ services:
       - "9901:9901" # Admin
     volumes:
       - ./envoy.dev.yml:/etc/envoy/envoy.yaml:ro
-    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster specification-centralized-backend-cluster-dev
+      - ./start-envoy.sh:/usr/local/bin/start-envoy.sh:ro
+    command: ["/bin/sh", "/usr/local/bin/start-envoy.sh"]
     networks:
       - envoy-network
 

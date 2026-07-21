@@ -1,3 +1,9 @@
+overload_manager:
+  resource_monitors:
+    - name: "envoy.resource_monitors.global_downstream_max_connections"
+      typed_config:
+        "@type": "type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig"
+        max_active_downstream_connections: 10000
 static_resources:
   listeners:
     - name: listener_0
@@ -63,15 +69,16 @@ static_resources:
                               uri: "http://auth:5002/auth/jwks.json" # Assumes auth service runs on port 5002
                               cluster: auth_service
                               timeout: 5s
-                            cache_duration:
-                              seconds: 600
-                      # Defines rules for which routes require which provider.
-                      # We define it per-route in this example for more granular control.
+                            cache_duration: { seconds: 600 }
+                          Use a local JWKS file for development.
+                          local_jwks:
+                            filename: "/etc/envoy/jwks/public_key_set.json"
                       rules:
                         - match:
                             prefix: /
-                          # By default, no requirement is applied at the filter level.
-                          # We apply it at the route level instead.
+                          # This rule allows requests to pass through without a JWT
+                          # unless a requirement_name is specified on the route.
+                          # This effectively makes routes public by default.
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
