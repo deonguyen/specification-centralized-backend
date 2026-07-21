@@ -29,4 +29,4 @@ RUN rm -f .env .env.local .env.staging .env.prod
 EXPOSE 5001
 
 # Run Django’s development server
-CMD ["python", "specification_centralized_auth_project/manage.py", "runserver", "0.0.0.0:5001"]
+CMD ["python", "specification_centralized_auth_project/manage.py", "runserver", "0.0.0.0:5002"]

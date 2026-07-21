@@ -1,5 +1,5 @@
-from specification_centralized_spec.apps import SpecificationCentralizedSpecConfig
-from specification_centralized_core.models import ProjectModel, NotificationModel
+from specification_centralized_core.models.notification_model import NotificationModel
+from specification_centralized_core.models.project_model import ProjectModel
 from django.contrib.auth.models import User
 from specification_centralized_spec.services.github_app_service import get_github_app_installation_token
 from specification_centralized_spec.services.import_specification_service import (

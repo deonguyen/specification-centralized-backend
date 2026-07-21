@@ -1,9 +1,3 @@
-admin:
-  address:
-    socket_address:
-      address: 0.0.0.0
-      port_value: 9901
-
 static_resources:
   listeners:
     - name: listener_0
@@ -23,83 +17,117 @@ static_resources:
                     - name: local_service
                       domains: ["*"]
                       routes:
-                        - match:
-                            prefix: "/static/"
-                          route:
-                            cluster: static_cluster
-                            prefix_rewrite: "/static/"
+                        # Public routes that don't require a token
                         - match:
                             prefix: "/auth/"
                           route:
-                            cluster: auth_cluster
-                            prefix_rewrite: "/auth/"
+                            cluster: auth_service
+                        # Route for static files
                         - match:
-                            prefix: "/admin/"
+                            prefix: "/static/"
                           route:
-                            cluster: admin_cluster
-                            prefix_rewrite: "/admin/"
+                            cluster: static_server_service
+                        # Routes that require a token
                         - match:
                             prefix: "/spec/"
                           route:
-                            cluster: spec_cluster
+                            cluster: spec_service
+                          typed_per_filter_config:
+                            envoy.filters.http.jwt_authn:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
+                              requirement_name: "default"
+                        - match:
+                            prefix: "/admin/"
+                          route:
+                            cluster: admin_service
+                          typed_per_filter_config:
+                            envoy.filters.http.jwt_authn:
+                              "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
+                              requirement_name: "default"
                 http_filters:
+                  - name: envoy.filters.http.jwt_authn
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                      providers:
+                        # This provider is named 'default' and is used in the per-route config above.
+                        default:
+                          # The JWT is expected in the Authorization header, e.g., "Authorization: Bearer <token>"
+                          from_headers:
+                            - name: Authorization
+                              value_prefix: "Bearer "
+                          # Extracts claims from the JWT payload and adds them to request headers.
+                          payload_to_header:
+                            # Extracts the 'user_id' claim and puts it in the 'x-user-id' header.
+                            - header_name: x-user-id
+                              payload_name: user_id
+                          # The issuer of the JWT. This must match the 'iss' claim in the token.
+                          issuer: "specification-centralized-auth"
+                          # The location of the public keys (JWKS) to verify the token signature.
+                          remote_jwks:
+                            http_uri:
+                              uri: "http://auth:5002/auth/jwks.json" # Assumes auth service runs on port 5002
+                              cluster: auth_service
+                              timeout: 5s
+                            cache_duration:
+                              seconds: 600
+                      # Defines rules for which routes require which provider.
+                      # We define it per-route in this example for more granular control.
+                      rules:
+                        - match:
+                            prefix: /
+                          # By default, no requirement is applied at the filter level.
+                          # We apply it at the route level instead.
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+
   clusters:
-    - name: admin_cluster
-      connect_timeout: 0.25s
-      type: STRICT_DNS
-      # Http2 is not supported by Django's development server
-      # http2_protocol_options: {}
-      lb_policy: ROUND_ROBIN
+    - name: admin_service
+      connect_timeout: 5s
+      type: LOGICAL_DNS
       load_assignment:
-        cluster_name: admin_cluster
+        cluster_name: admin_service
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
                       address: admin
-                      port_value: 5001
-    - name: auth_cluster
-      connect_timeout: 0.25s
-      type: STRICT_DNS
-      # http2_protocol_options: {}
-      lb_policy: ROUND_ROBIN
+                      port_value: 5001 # The port your admin service listens on.
+    - name: auth_service
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      # The 'auth' service name from docker-compose.
       load_assignment:
-        cluster_name: auth_cluster
+        cluster_name: auth_service
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
                       address: auth
-                      port_value: 5002
-    - name: static_cluster
-      connect_timeout: 0.25s
-      type: STRICT_DNS
-      lb_policy: ROUND_ROBIN
+                      port_value: 5002 # The port your auth service listens on inside the container.
+    - name: spec_service
+      connect_timeout: 5s
+      type: LOGICAL_DNS
       load_assignment:
-        cluster_name: static_cluster
+        cluster_name: spec_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: spec-api
+                      port_value: 5003 # The port your spec-api service listens on.
+    - name: static_server_service
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      load_assignment:
+        cluster_name: static_server_service
         endpoints:
           - lb_endpoints:
               - endpoint:
                   address:
                     socket_address:
                       address: static-server
-                      port_value: 5080
-    - name: spec_cluster
-      connect_timeout: 0.25s
-      type: STRICT_DNS
-      # http2_protocol_options: {}
-      lb_policy: ROUND_ROBIN
-      load_assignment:
-        cluster_name: spec_cluster
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: host.docker.internal
-                      port_value: 5003
+                      port_value: 5080 # The port nginx listens on.
