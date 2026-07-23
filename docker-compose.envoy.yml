@@ -38,7 +38,7 @@ services:
     networks:
       - envoy-network
 
-  spec-api:
+  spec:
     build:
       context: .
       dockerfile: specification_centralized_spec_project/Dockerfile.dev
@@ -57,7 +57,7 @@ services:
       - admin
       - auth
       - static-server
-      - spec-api
+      - spec
     ports:
       - "8082:8082" # HTTP Proxy
       - "9901:9901" # Admin
