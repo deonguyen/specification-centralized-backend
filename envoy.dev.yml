@@ -29,28 +29,18 @@ static_resources:
                             prefix: "/auth/"
                           route:
                             cluster: auth_service
-                        # Route for static files
                         - match:
                             prefix: "/static/"
                           route:
                             cluster: static_server_service
-                        # Routes that require a token
                         - match:
                             prefix: "/spec/"
                           route:
                             cluster: spec_service
-                          # typed_per_filter_config:
-                          #   envoy.filters.http.jwt_authn:
-                          #     "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
-                          #     requirement_name: "default"
                         - match:
                             prefix: "/admin/"
                           route:
                             cluster: admin_service
-                          # typed_per_filter_config:
-                          #   envoy.filters.http.jwt_authn:
-                          #     "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
-                          #     requirement_name: "default"
                 http_filters:
                   - name: envoy.filters.http.jwt_authn
                     typed_config:
@@ -72,14 +62,11 @@ static_resources:
                               timeout: 5s
                             cache_duration: { seconds: 600 }
                       rules:
-                        # Use a local JWKS file for development.
-                        # local_jwks:
-                        #   filename: "/etc/envoy/jwks/public_key_set.json"
                         - match:
                             prefix: /
-                          # This rule allows requests to pass through without a JWT
-                          # unless a requirement_name is specified on the route.
-                          # This effectively makes routes public by default.
+                            # This rule allows requests to pass through without a JWT
+                            # unless a requirement_name is specified on the route.
+                            # This effectively makes routes public by default.
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
