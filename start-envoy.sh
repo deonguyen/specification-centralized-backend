@@ -9,7 +9,7 @@ JWKS_DIR=$(dirname "$JWKS_FILE")
 
 # The URL where the auth service exposes the JWKS.
 # The 'auth' hostname is available from within the Docker network.
-JWKS_URL="http://host.docker.internal:5002/auth/jwks.json"
+JWKS_URL="http://auth:5002/auth/jwks.json"
 
 # Create the directory for the JWKS file if it doesn't exist
 mkdir -p "$JWKS_DIR"

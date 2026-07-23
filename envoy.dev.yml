@@ -4,6 +4,7 @@ overload_manager:
       typed_config:
         "@type": "type.googleapis.com/envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig"
         max_active_downstream_connections: 10000
+
 static_resources:
   listeners:
     - name: listener_0
@@ -38,18 +39,18 @@ static_resources:
                             prefix: "/spec/"
                           route:
                             cluster: spec_service
-                          typed_per_filter_config:
-                            envoy.filters.http.jwt_authn:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
-                              requirement_name: "default"
+                          # typed_per_filter_config:
+                          #   envoy.filters.http.jwt_authn:
+                          #     "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
+                          #     requirement_name: "default"
                         - match:
                             prefix: "/admin/"
                           route:
                             cluster: admin_service
-                          typed_per_filter_config:
-                            envoy.filters.http.jwt_authn:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
-                              requirement_name: "default"
+                          # typed_per_filter_config:
+                          #   envoy.filters.http.jwt_authn:
+                          #     "@type": type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig
+                          #     requirement_name: "default"
                 http_filters:
                   - name: envoy.filters.http.jwt_authn
                     typed_config:
@@ -70,10 +71,10 @@ static_resources:
                               cluster: auth_service
                               timeout: 5s
                             cache_duration: { seconds: 600 }
-                          Use a local JWKS file for development.
-                          local_jwks:
-                            filename: "/etc/envoy/jwks/public_key_set.json"
                       rules:
+                        # Use a local JWKS file for development.
+                        # local_jwks:
+                        #   filename: "/etc/envoy/jwks/public_key_set.json"
                         - match:
                             prefix: /
                           # This rule allows requests to pass through without a JWT
@@ -119,8 +120,8 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: spec-api
-                      port_value: 5003 # The port your spec-api service listens on.
+                      address: spec
+                      port_value: 5003 # The port your spec service listens on.
     - name: static_server_service
       connect_timeout: 5s
       type: LOGICAL_DNS

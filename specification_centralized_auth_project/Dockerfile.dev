@@ -18,7 +18,7 @@ COPY specification_centralized_auth_project/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --index-url http://host.docker.internal:8080/simple/ --trusted-host host.docker.internal specification_centralized_core --force
+RUN pip install --no-cache-dir --index-url http://host.docker.internal:8080/simple/ --trusted-host host.docker.internal specification_centralized_core
 
 COPY . .
 

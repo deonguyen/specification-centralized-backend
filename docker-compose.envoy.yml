@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   admin:
@@ -38,7 +38,7 @@ services:
     networks:
       - envoy-network
 
-  spec-api:
+  spec:
     build:
       context: .
       dockerfile: specification_centralized_spec_project/Dockerfile.dev
@@ -49,7 +49,7 @@ services:
       - specification_centralized_spec_project/.env.dev
     networks:
       - envoy-network
-      
+
   envoy:
     image: envoyproxy/envoy:v1.30-latest
     container_name: envoy-proxy-dev
@@ -57,14 +57,13 @@ services:
       - admin
       - auth
       - static-server
-      - spec-api
+      - spec
     ports:
       - "8082:8082" # HTTP Proxy
       - "9901:9901" # Admin
     volumes:
       - ./envoy.dev.yml:/etc/envoy/envoy.yaml:ro
-      - ./start-envoy.sh:/usr/local/bin/start-envoy.sh:ro
-    command: ["/bin/sh", "/usr/local/bin/start-envoy.sh"]
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --service-cluster specification-centralized-backend-cluster-dev
     networks:
       - envoy-network
 
